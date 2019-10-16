@@ -143,9 +143,8 @@ def predictMany():
         x_db = x_db.reshape(1,x_db.shape[0])
         reverseScaledPrediction = reverseScale(pday[0][0], x_min, x_max)
         weekdayPredictions.append(reverseScaledPrediction)
-
         
-        return jsonify({weekdayPredictions})
+    return jsonify(weekdayPredictions)
 
 
 if __name__ == '__main__':

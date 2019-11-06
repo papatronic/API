@@ -1,12 +1,60 @@
 import random
 import json
 from flask import Flask, jsonify, request
-from sklearn.model_selection import train_test_split
 import psycopg2
 import numpy as np
 from keras.models import load_model
 
 app = Flask(__name__)
+
+@app.route('/get-origins', methods=['GET'])
+def getOrigins():
+    cities = []
+    x_json = ''
+
+    try:
+        connection = psycopg2.connect(user = "postgres", password = "r351d3nc14501", host = "127.0.0.1", port = "5432", database = "potatoe_markets")
+        cursor = connection.cursor()
+
+        postgreSQL_select_Query = "SELECT * FROM market_origins"
+        cursor.execute(postgreSQL_select_Query)
+        value_records = cursor.fetchall()
+    except (Exception, psycopg2.Error) as error:
+        print("Error obteniendo los datos de PostgreSQL", error)
+    finally:
+        if(connection):
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")
+    for row in value_records:
+        x_json = {"id":row[1], "city":row[2]}
+        cities.append(x_json)
+    return jsonify(cities)
+
+
+@app.route('/get-destination', methods=['GET'])
+def getOrigins():
+    cities = []
+    x_json = ''
+
+    try:
+        connection = psycopg2.connect(user = "postgres", password = "r351d3nc14501", host = "127.0.0.1", port = "5432", database = "potatoe_markets")
+        cursor = connection.cursor()
+
+        postgreSQL_select_Query = "SELECT * FROM market_destination"
+        cursor.execute(postgreSQL_select_Query)
+        value_records = cursor.fetchall()
+    except (Exception, psycopg2.Error) as error:
+        print("Error obteniendo los datos de PostgreSQL", error)
+    finally:
+        if(connection):
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")
+    for row in value_records:
+        x_json = {"id":row[1], "city":row[2]}
+        cities.append(x_json)
+    return jsonify(cities)
 
 @app.route('/get-cities', methods=['GET'])
 def getCities():
@@ -57,17 +105,6 @@ def predictMany():
     x_min = 0
     x_max = 0
 
-    # Los modelos corresponden a los siguientes destinos:
-    # type =1
-    # Sinaloa como origen
-    # id origen: 1
-    # id destino: 10, 17, 19, 23, 33, 40
-
-    # type = 0
-    # Sinaloa como destino
-    # id origen: 42 = jalisco
-    # id destino: 1
-
     try:
         connection = psycopg2.connect(user = "postgres", password = "r351d3nc14501", host = "127.0.0.1", port = "5432", database = "potatoe_markets")
         cursor = connection.cursor()
@@ -111,7 +148,7 @@ def predictMany():
     try:
         model = load_model(modelName)
     except:
-        return jsonify({'error': 'El modelo aún no ha sido generado'})    
+        return jsonify({'error': 'El modelo aun no ha sido generado'})    
 
     def scaleValues(x, x_min, x_max, r_min = 0, r_max = 1):
         scale = (r_max - r_min) / (x_max - x_min)
